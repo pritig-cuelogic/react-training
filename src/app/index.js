@@ -1,4 +1,4 @@
-import React from "react";
+/*import React from "react";
 import { render } from "react-dom";
 
 import { Header } from "./components/Header";
@@ -47,4 +47,39 @@ class App extends React.Component {
 	}
 }
 
-render(<App/>, window.document.getElementById("app"));
+render(<App/>, window.document.getElementById("app"));*/
+
+import { createStore } from "redux";
+
+const initialState = {
+	result: 1,
+	lastValues: []
+}
+const reducer = (state = initialState, action) => {
+	switch(action.type) {
+		case "ADD":
+		   state = state + action.payload;
+		   break;
+		case "SUBTRACT":
+		   state = state - action.payload;
+		   break;
+	}
+	return state;
+}
+const store = createStore(reducer);
+store.subscribe(() => {
+	console.log("store updated",store.getState());
+});
+
+store.dispatch({
+	type: "ADD",
+	payload: 10
+});
+store.dispatch({
+	type: "ADD",
+	payload: 12
+});
+store.dispatch({
+	type: "SUBTRACT",
+	payload: 12
+});
