@@ -1,61 +1,16 @@
-/*import React from "react";
-import { render } from "react-dom";
+import {render} from "react-dom";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import logger from "redux-logger";
+import { Provider } from "react-redux";
+import React from "react";
 
-import { Header } from "./components/Header";
-import { Home } from "./components/Home";
-class App extends React.Component {
+import App from "./components/App";
 
-    constructor(){
-		super();
-		this.state = {
-			homelink: "Home"
-		}
-	}
-	onGreet(){
-		console.log("this is greet");
-	}
-	onLinkChange(linkName){
-		this.setState({
-			homelink: linkName
-		});
-	}
-	render() {
-		var user = {
-			name: "Anna",
-			hobbies: ["sports", "watching movie"]
-		};
-		return (
-				<div className="container">
-					<div className="row">
-						<div className="col-xs-10">
-							<Header homelink={this.state.homelink} />
-						</div>
-					</div>
-					<div className="row">
-						<div className="col-xs-10">
-							<Home name={"Max"} 
-							initialage={27}
-							 greet={this.onGreet}
-							 changeLink={this.onLinkChange.bind(this)}
-							 initiallink = {this.state.homelink}
-							 />
-						</div>
-					</div>
-				</div>
-				
-			);
-	}
-}
 
-render(<App/>, window.document.getElementById("app"));*/
-
-import { createStore } from "redux";
-
-const initialState = {
+const mathReducer = (state = {
 	result: 1,
 	lastValues: []
-}
-const reducer = (state = initialState, action) => {
+}, action) => {
 	switch(action.type) {
 		case "ADD":
 		   state = {
@@ -65,25 +20,48 @@ const reducer = (state = initialState, action) => {
 		   }
 		   break;
 		case "SUBTRACT":
-		   state = state - action.payload;
+		   state = {
+                ...state,
+                result: state.result - action.payload,
+                lastValues: [...state.lastValues, action.payload]
+			};
 		   break;
 	}
 	return state;
-}
-const store = createStore(reducer);
+};
+
+const userReducer = (state = {
+	name: "priti",
+	age: 25
+}, action) => {
+	switch(action.type) {
+		case "SET_NAME":
+		   state = {
+		   	...state,
+		   	name: action.payload
+		   }
+		   break;
+		case "SET_AGE":
+		   state = {
+		   	...state,
+		   	age: action.payload
+		   }
+		   break;
+	}
+	return state;
+};
+
+const store = createStore(
+	combineReducers({mathReducer, userReducer}),
+	 {}, 
+	 applyMiddleware(logger()));
+
 store.subscribe(() => {
 	console.log("store updated",store.getState());
 });
 
-store.dispatch({
-	type: "ADD",
-	payload: 10
-});
-store.dispatch({
-	type: "ADD",
-	payload: 12
-});
-store.dispatch({
-	type: "SUBTRACT",
-	payload: 12
-});
+
+render(<Provider store={store}>
+			<App />
+		</ Provider>,
+	 window.document.getElementById("app"));
